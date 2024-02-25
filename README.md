@@ -27,12 +27,16 @@ This project improves on jacopotarantino's excellent [angular-match-media](https
 
 ## Installation
 
-Add `"angular-media-queries": "github:sentrysoftware/angular-match-media#v1.0.0"` to your `package.json`, and then run `npm i`.
+To install `matchMediaLight` for your AngularJS project via NPM, run the following command in your project's root directory:
 
-Include `match-media-light.js` in your HTML, after AngularJS:
+```bash
+npm install angular-match-media-light --save
+```
+
+Include `match-media-light.min.js` in your HTML, after AngularJS:
 
 ```html
-<script type='text/javascript' src='...your-path-to/node_modules/angular-media-queries/match-media-light.js'></script>
+<script type='text/javascript' src='...your-path-to/node_modules/angular-match-media-light/dist/match-media-light.min.js'></script>
 ```
 
 ## Usage
