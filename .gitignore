@@ -1,1 +1,84 @@
+# Node modules and dependencies
+node_modules/
+
+# Build outputs
+dist/
+.tmp/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# IDE - VSCode
+.history/
+.settings/
+.vscode/
+
+# Operating System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Angular files
+.bower
+bower_components/
+
+# JSPM packages
+jspm_packages/
+
+# TypeScript compiled files
+*.ngfactory.js
+*.ngstyle.js
+*.ts.map
+
+# Temporary files
+*.tmp
+*.temp
+
+# Other
+*.sass-cache
+*.idea/
+*.project
+*.class
+*.orig
+*.backup
+*.bak
+*.tmp
+*.swp
+*~
+*.lock
+*.DS_Store
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Misc
+/.awcache
+/coverage/
+/venv/
+/venv.bak/
