@@ -36,7 +36,7 @@ npm install angular-match-media-light --save
 Include `match-media-light.min.js` in your HTML, after AngularJS:
 
 ```html
-<script type='text/javascript' src='...your-path-to/node_modules/angular-match-media-light/dist/match-media-light.min.js'></script>
+<script type="text/javascript" src="...your-path-to/node_modules/angular-match-media-light/dist/match-media-light.min.js"></script>
 ```
 
 ## Usage
@@ -69,7 +69,7 @@ Theme is: light
 For example, you can dynamically add classes to the `<body>` element, depending on the size of the screen, to control the CSS:
 
 ```html
-<body ng-class="'size-' + $matchMedia.size'>">
+<body ng-class="'size-' + $matchMedia.size">
 ```
 
 ```css
@@ -120,7 +120,7 @@ angular.module("myApp").config(["mediaWatcher", function(mediaWatcher) {
 
 ## License
 
-This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/deed.en_US.
+[MIT License](LICENSE)
 
 ## Contributing
 
