@@ -24,8 +24,9 @@ SOFTWARE.
 (function() {
 	"use strict";
 
-	var app = angular.module("matchMediaLight", []);
+	var USER_IS_DARK = "matchMediaLight.userIsDark";
 
+	var app = angular.module("matchMediaLight", []);
 
 	app.factory("mediaWatcher", ["$rootScope", "$window", "$timeout", function mediaWatcherFactory($rootScope, $window, $timeout) {
 
@@ -73,19 +74,19 @@ SOFTWARE.
 			// Also, add a change listener to each of them
 			angular.forEach(rules, function(rule, category) {
 				mediaQueries[category] = $window.matchMedia(rule);
-				mediaQueries[category].addEventListener("change", refreshScreenSize);
+				mediaQueries[category].addEventListener("change", handleSizeChange);
 			});
 
 			// Add listeners for other interesting changes
-			printMediaQuery.addEventListener("change", refreshPrint);
-			retinaMediaQuery.addEventListener("change", refreshRetina);
-			darkMediaQuery.addEventListener("change", refreshDark);
+			printMediaQuery.addEventListener("change", handlePrint);
+			retinaMediaQuery.addEventListener("change", handleDpiChange);
+			darkMediaQuery.addEventListener("change", handleColorChange);
 
 			// Initialize the value
-			refreshScreenSize();
-			refreshPrint();
-			refreshRetina();
-			refreshDark();
+			handleSizeChange();
+			handlePrint();
+			handleDpiChange();
+			handleColorChange();
 		};
 
 		/**
@@ -103,13 +104,23 @@ SOFTWARE.
 			});
 
 			return screenSize;
-
 		}
 
 		/**
-		 * Check the status of each mediaQuery and update the $matchMedia object in $rootScope
+		 * @returns whether we're in dark colors mode (takes into account if we forced dark or light)
 		 */
-		var refreshScreenSize = function() {
+		function isCurrentDark() {
+			var userIsDark = $window.localStorage.getItem(USER_IS_DARK);
+			if (userIsDark != null) {
+				return userIsDark === "true";
+			}
+			return darkMediaQuery.matches;
+		}
+
+		/**
+		 * React to screen size change
+		 */
+		var handleSizeChange = function() {
 
 			// Update $matchMedia
 			$rootScope.$matchMedia.size = getCurrentScreenSize();
@@ -120,9 +131,26 @@ SOFTWARE.
 		};
 
 		/**
-		 * Refresh $matchMedia.print
+		 * React to screen DPI change
 		 */
-		var refreshPrint = function() {
+		var handleDpiChange = function() {
+			$rootScope.$matchMedia.retina = retinaMediaQuery.matches;
+			$rootScope.$applyAsync();
+		};
+
+		/**
+		 * React to color scheme change (browser preference)
+		 */
+		var handleColorChange = function() {
+			$rootScope.$matchMedia.dark = isCurrentDark();
+			$rootScope.$applyAsync();
+		};
+
+		/**
+		 * React to printing
+		 * All media settings will be updated and sync'ed immediately
+		 */
+		var handlePrint = function() {
 
 			// Refresh $matchMedia.print
 			$rootScope.$matchMedia.print = printMediaQuery.matches;
@@ -130,7 +158,9 @@ SOFTWARE.
 			// Also refresh other properties, because a print event will surely trigger a new screen size
 			$rootScope.$matchMedia.size = getCurrentScreenSize();
 			$rootScope.$matchMedia.retina = retinaMediaQuery.matches;
-			$rootScope.$matchMedia.dark = darkMediaQuery.matches;
+
+			// Colors must always be in light mode when printing
+			$rootScope.$matchMedia.dark = isCurrentDark() && !$rootScope.$matchMedia.print;
 
 			// Special for print event: force a digest cycle NOW, because the browser
 			// will probably switch rapidly back to non-print media, once it's done with
@@ -150,25 +180,41 @@ SOFTWARE.
 		};
 
 		/**
-		 * Refresh $matchMedia.retina
+		 * Force dark colors mode
+		 * Remember the setting if and only if it doesn't match the browser's settings
 		 */
-		var refreshRetina = function() {
-			$rootScope.$matchMedia.retina = retinaMediaQuery.matches;
-			$rootScope.$applyAsync();
+		var forceDark = function() {
+			$rootScope.$matchMedia.dark = true;
+			if (darkMediaQuery.matches) {
+				// Browser preference is already in dark mode, so get back to "default"
+				// Remove localStorage
+				$window.localStorage.removeItem(USER_IS_DARK);
+			} else {
+				$window.localStorage.setItem(USER_IS_DARK, true);
+			}
 		};
 
 		/**
-		 * Refresh $matchMedia.dark
+		 * Force light colors mode
+		 * Remember the setting if and only if it doesn't match the browser's settings
 		 */
-		var refreshDark = function() {
-			$rootScope.$matchMedia.dark = darkMediaQuery.matches;
-			$rootScope.$applyAsync();
+		var forceLight = function() {
+			$rootScope.$matchMedia.dark = false;
+			if (!darkMediaQuery.matches) {
+				// Browser preference is already in light mode, so get back to "default"
+				// Remove localStorage
+				$window.localStorage.removeItem(USER_IS_DARK);
+			} else {
+				$window.localStorage.setItem(USER_IS_DARK, false);
+			}
 		};
 
 		// The service methods
 		return {
 			setRules: setRules,
-			init: init
+			init: init,
+			forceDark: forceDark,
+			forceLight: forceLight
 		};
 
 	}]);

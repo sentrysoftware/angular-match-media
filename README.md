@@ -22,13 +22,14 @@ Notably features are:
 * Automatically sets and updates `$matchMedia` in `$rootScope`
 * Properly detects print events and synchronizes AngularJS
 * Reports light-dark color schemes
+* User-controllable light-dark color scheme
 
 This project improves on jacopotarantino's excellent [angular-match-media](https://github.com/jacopotarantino/angular-match-media) library in various ways:
 
 * Improved performance (code doesn't rely on `resize` events)
 * Encourages developer to follow AngularJS's native functions (use `$watch` rather than specific functions)
 * Properly detects screen resizes on print
-* Loses compatibility with ancient browsers (pre-2014)
+* Loses compatibility with ancient browsers (pre-2014, although this is admittedly a minus)
 
 ## Installation
 
@@ -87,24 +88,69 @@ body.size-sm {
 }
 ```
 
-### In a Controller
+### In a controller
 
 Simply inject `$rootScope` in your controller to access `$matchMedia` directly, or use `$watch('$matchMedia', myCallBack)` to react to media changes, as in the example below:
 
 ```js
 angular.module('myApp', ['matchMediaLight']).controller('myController', ['$rootScope', function($rootScope) {
+
+  // Access $matchMedia in $rootScope
   console.log('Screen size is ' + $rootScope.$matchMedia.size);
 
+  // Watch changes in $matchMedia
   $rootScope.$watch('$matchMedia', function(media) {
     console.log('New size: ' + media.size);
     console.log('Retina: ' + media.retina);
     console.log('Dark: ' + media.dark);
     console.log('Print: ' + media.print);
   }, true);
+
 }]);
 ```
 
-### Custom Screen Sizes or Media Queries
+### Control color scheme
+
+Use the `forceDark()` and `forceLight()` methods of the `mediaWatcher` AngularJS service to force the dark or light color scheme. The setting is stored in `window.localStorage` and remembered. Use these functions to let the user control how to display your application.
+
+`$matchMedia.dark` will reflect the setting configured with `forceDark()` and `forceLight()`.
+
+When you call `forceDark()` and that the browser is already in dark mode, the setting is removed from `localStorage` so that the application follows the browser's default behavior. This means that if the browser is set back to light mode, `$matchMedia.dark` will be set to `false` again. Same goes when calling `forceLight()` when the browser is already in light color mode.
+
+You can use [`angular-bootstrap-toggle`](https://ziscloud.github.io/angular-bootstrap-toggle/) to let the user switch from light to dark mode:
+
+```html
+<toggle
+  ng-model="$matchMedia.dark"
+  ng-change="switchColors()"
+  size="btn-xs"
+  width="34px"
+  height="22px"
+  off-class="btn-info"
+  on-class="btn-primary"
+  on="<i class='fa-solid fa-moon'></i>"
+  off="<i class='fa-solid fa-sun'></i>">
+</toggle>
+```
+
+```js
+myApp.controller('aController', ['$rootScope', 'mediaWatcher', function($rootScope, mediaWatcher) {
+
+  // [...]
+
+  /**
+   * Switches color schemes between light and dark
+   * Reacts to ng-change on the toggle
+   */
+  $scope.switchColors = function() {
+    // When we arrive here, $matchMedia.dark has already been forced to the desired value
+    $rootScope.$matchMedia.dark ? mediaWatcher.forceDark() : mediaWatcher.forceLight();
+  };
+
+}]);
+```
+
+### Custom screen sizes or media queries
 
 By default, `$matchMedia.size` matches with Bootstrap 3.x screen sizes: `xs`, `sm`, `md`, and `lg`. You can customize the screen size categories (add or remove), and change the breakpoints.
 
