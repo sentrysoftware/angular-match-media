@@ -1,5 +1,10 @@
 # AngularJS matchMediaLight Module
 
+![NPM Version](https://img.shields.io/npm/v/angular-match-media-light)
+![NPM Downloads](https://img.shields.io/npm/dm/angular-match-media-light)
+![GitHub top language](https://img.shields.io/github/languages/top/sentrysoftware/angular-match-media)
+![License](https://img.shields.io/github/license/sentrysoftware/angular-match-media)
+
 Provides an AngularJS service that sets and updates `$matchMedia` in `$rootScope` with the following information:
 
 ```js
