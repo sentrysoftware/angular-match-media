@@ -65,13 +65,9 @@ SOFTWARE.
 		 */
 		var init = function() {
 
-			// Initialize $matchMedia
-			$rootScope.$matchMedia = {};
-
-			mediaQueries = {};
-
 			// Build the mediaQueries map with all mediaQuery instances
 			// Also, add a change listener to each of them
+			mediaQueries = {};
 			angular.forEach(rules, function(rule, category) {
 				mediaQueries[category] = $window.matchMedia(rule);
 				mediaQueries[category].addEventListener("change", handleSizeChange);
@@ -82,11 +78,13 @@ SOFTWARE.
 			retinaMediaQuery.addEventListener("change", handleDpiChange);
 			darkMediaQuery.addEventListener("change", handleColorChange);
 
-			// Initialize the value
-			handleSizeChange();
-			handlePrint();
-			handleDpiChange();
-			handleColorChange();
+			// Initialize $matchMedia
+			$rootScope.$matchMedia = {
+				size: getCurrentScreenSize(),
+				retina: isRetina(),
+				dark: isCurrentDark(),
+				print: isPrinting()
+			};
 		};
 
 		/**
@@ -107,6 +105,13 @@ SOFTWARE.
 		}
 
 		/**
+		 * @returns whether the screen is high DPI
+		 */
+		function isRetina() {
+			return retinaMediaQuery.matches;
+		}
+
+		/**
 		 * @returns whether we're in dark colors mode (takes into account if we forced dark or light)
 		 */
 		function isCurrentDark() {
@@ -115,6 +120,13 @@ SOFTWARE.
 				return userIsDark === "true";
 			}
 			return darkMediaQuery.matches;
+		}
+
+		/**
+		 * @returns whether we are printing
+		 */
+		function isPrinting() {
+			return printMediaQuery.matches;
 		}
 
 		/**
@@ -134,7 +146,7 @@ SOFTWARE.
 		 * React to screen DPI change
 		 */
 		var handleDpiChange = function() {
-			$rootScope.$matchMedia.retina = retinaMediaQuery.matches;
+			$rootScope.$matchMedia.retina = isRetina();
 			$rootScope.$applyAsync();
 		};
 
@@ -153,11 +165,11 @@ SOFTWARE.
 		var handlePrint = function() {
 
 			// Refresh $matchMedia.print
-			$rootScope.$matchMedia.print = printMediaQuery.matches;
+			$rootScope.$matchMedia.print = isPrinting();
 
 			// Also refresh other properties, because a print event will surely trigger a new screen size
 			$rootScope.$matchMedia.size = getCurrentScreenSize();
-			$rootScope.$matchMedia.retina = retinaMediaQuery.matches;
+			$rootScope.$matchMedia.retina = isRetina();
 
 			// Colors must always be in light mode when printing
 			$rootScope.$matchMedia.dark = isCurrentDark() && !$rootScope.$matchMedia.print;
