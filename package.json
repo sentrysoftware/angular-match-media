@@ -1,6 +1,6 @@
 {
   "name": "angular-match-media-light",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AngularJS service providing $matchMedia in $rootScope with information about the current @media (screen size, print, Retina, dark colors).",
   "main": "dist/match-media-light.min.js",
   "files": [
