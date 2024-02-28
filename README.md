@@ -120,17 +120,25 @@ When you call `forceDark()` and that the browser is already in dark mode, the se
 You can use [`angular-bootstrap-toggle`](https://ziscloud.github.io/angular-bootstrap-toggle/) to let the user switch from light to dark mode:
 
 ```html
-<toggle
-  ng-model="$matchMedia.dark"
-  ng-change="switchColors()"
-  size="btn-xs"
-  width="34px"
-  height="22px"
-  off-class="btn-info"
-  on-class="btn-primary"
-  on="<i class='fa-solid fa-moon'></i>"
-  off="<i class='fa-solid fa-sun'></i>">
-</toggle>
+<!-- Add "dark" to the class of body when in dark mode -->
+<body ng-app="myApp" ng-class="{'dark': $matchMedia.dark }">
+  <!-- Little hack: Verify early whether we're in dark mode to avoid flickering and FOUC -->
+  <script>(function (){var d=window.localStorage.getItem('matchMediaLight.userIsDark');return null!=d?d==='true':window.matchMedia('(prefers-color-scheme: dark)').matches})()&&document.body.classList.add('dark')</script>
+
+  <!-- [...] -->
+
+  <!-- Pretty day/night toggle -->
+  <toggle
+    ng-model="$matchMedia.dark"
+    ng-change="switchColors()"
+    size="btn-xs"
+    width="34px"
+    height="22px"
+    off-class="btn-info"
+    on-class="btn-primary"
+    on="<i class='fa-solid fa-moon'></i>"
+    off="<i class='fa-solid fa-sun'></i>">
+  </toggle>
 ```
 
 ```js
@@ -149,6 +157,8 @@ myApp.controller('aController', ['$rootScope', 'mediaWatcher', function($rootSco
 
 }]);
 ```
+
+Note the *hacky* script just after the `<body>` element, to make sure the `dark` class is added to the `<body>` element as soon as possible, and avoid a flickering effect on page load and [Flashes Of Unstyled Content (FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content);
 
 ### Custom screen sizes or media queries
 
